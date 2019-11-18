@@ -15,3 +15,10 @@ script:
   - python manage.py migrate
   - python manage.py test
 
+deploy:
+  provider: heroku
+  api_key:
+    secure: "Vs7t7Tj3aIC6SBRuTmRuxo+C+ZrVzasBW+9F9GDhSUWLYGvBu8KIjiodWFwt/Gs9X2tHZ4w6y1EjsUpnDsk2iUoIZadlCQHvcSdWRr5FtXuXXmFn42gQ2O+Ix3EaStC5Fz9xy49OJe+/A3zo/lI/CtsDL5qmqKn0H5llBRQjQlGSnP8HAj07k4eYb2C6+GP6YvBKIDQqbWfapxBb/+puaYFcyOWQXhmgoX6U2HSyazbTqe8aJP5B+N/dT33EgbUs7H6tNgXsHlAXrWm3EXf3EtfXxlXz9V1HdO5b7J566OFVA0KCmGgNvDgPhvVTh85lXYoJWHwj5jcyF6k82SsOn9sIj4zazpSrTk2NcAgv+KM0R3XVeIliFsRm4GGiu7d2G5O9x1BNHWkdyyCPXN69mIMZVujm5MOgYPciV8BDwmH5kt7auiFrEP3fbNC+HsZczKBHnOIblKKtaouPalj0Sr3VFPv0HQADmxvHQyybOeICmhfzQYp7dtQtyY9MHgwado/xJPikryo9vGaPMQE6KzfwwGCnl4+WK+kd6BzNptuUgWWWz7VPQOkUoQFQw2JPMaLv+tfHxxOsEztLQSehCL8wZYmfHtQXtxl8Iz+01IRppk4j4k/2CKThi4E6vLnyRv4kA47gFm9lkpiOkI+LH8Iy1N77un3KPIxfVREgRpA="
+  app: django-ecom-tut
+  on:
+    branch: master
