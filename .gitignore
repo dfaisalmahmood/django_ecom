@@ -90,3 +90,6 @@ db.sqlite3
 
 ## VSCODE ##
 .vscode/
+
+## Staticfiles ##
+staticfiles/
