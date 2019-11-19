@@ -17,8 +17,15 @@ script:
 
 deploy:
   provider: heroku
+  buildpack: python
   api_key:
     secure: "Ym4RmQQwsl56Kq9KSECmDEOI8wRcINdcgsv4OwyTjjlXA/Dbg5666cbMcDQgOm1MM7ZFgqbgt14+k0l2ptigMbdK7sGeWvdgX/GcvIcll9LhW5mTzMejk1Kj6qn+VXNq4nPLxW+6Y0lzZly1yy2Dfa2KtTcQRMXiCg0q4/ACMrr6/HQ4bBLbLM9o//KKIvholOLQRZcgmd2ZJOCk0ub+oAtdBa7PpaysBlfytdewLdoWl3tiBJtwTzQMVpTGUn5Sh7KH6W4LftbM5XbfB0SaAbfC5f9eb7eee5SbRjJC5DBWhBCPAhKirl6IqAit2n4CzywN0d4F7jg0E7FHqrOTb8goH3im4BBGETaZ1oYW9r4r156bFcpqotXpwMu4hOPOfnOx7g9p31FBnugd8G0q6CigQV/V47r0lK7dsNGkKDiad6FDG0tJCl6VZICg+wZcE0zJkMJqAL/31yYsZOXv4eRkwt0P/ZQNkgbAzFpV8CG7NAshjJJqeeI28B7a6ForVeoE3G+gwre6lV/XHzZENow5geWQSfv0NjOmrYXVma05odAb37k0M88/v77tTUp9Y/bI985bcbhT+yNlPfrQz5J/xLovyOpzS8z7jZnJq2fzPcqkJ9f+eSnSBa7FkiRQn6WDt0BaAKdoxH7rWehX3mGu1LROuFQTNWy4QKiMBVs="
+  strategy: git
   app: django-ecom-tut
   on:
     branch: master
+  run:
+    - echo "from django.contrib.auth.models import User; User.objects.create_superuser('root', 'admin@example.com', $ROOT_PASSWORD)" | python manage.py shell
+
+after_deploy:
+  - echo "Done deploying!"
