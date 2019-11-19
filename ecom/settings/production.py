@@ -1,3 +1,4 @@
+import django_heroku
 from .base import *
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -8,3 +9,5 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
+# Activate Django-Heroku
+django_heroku.settings(locals())
