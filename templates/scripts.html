@@ -14,3 +14,18 @@
     // Animations initialization
     new WOW().init();
 </script>
+
+<script type="text/javascript">
+    $(function(){
+        $(document).mousedown(event => {
+            let clickover = $(event.target);
+            let _opened = $(".navbar-toggler").attr("aria-expanded");
+            console.log(`_opened:${_opened == "true"}`);
+            console.log(clickover);
+            if(_opened === "true" && !clickover.is("#navbar-top, #navbar-top div, #navbar-top ul, #navbar-top li, #navbar-top span, #navbar-top a, #navbar-top i")) {
+                $("#navbar-top button.navbar-toggler").click();
+                // $(".navbar.fixed-top button.navbar-toggler").attr("aria-expanded", "false");
+            }
+        });
+    });
+</script>
