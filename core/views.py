@@ -5,7 +5,9 @@ from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 
-from .models import Item, OrderItem, Order
+from .models import Item, OrderItem, Order, BillingAddress
+from .forms import CheckoutForm
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class HomeView(ListView):
@@ -15,19 +17,67 @@ class HomeView(ListView):
 
 
 class OrderSummary(LoginRequiredMixin, View):
-    def get(self, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         context = {
             "order": None
         }
-        order_qs = Order.objects.filter(user=self.request.user, ordered=False)
+        order_qs = Order.objects.filter(user=request.user, ordered=False)
         if order_qs.exists():
             context["order"] = order_qs[0]
-        return render(self.request, 'order_summary.html', context)
+        return render(request, 'order_summary.html', context)
 
 
 class ItemDetailView(DetailView):
     model = Item
     template_name = 'product.html'
+
+
+class CheckoutView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        # form
+        form = CheckoutForm()
+        context = {
+            "form": form,
+            "order": None,
+        }
+        order_qs = Order.objects.filter(user=request.user, ordered=False)
+        if order_qs.exists():
+            context["order"] = order_qs[0]
+        return render(request, 'checkout.html', context)
+
+    def post(self, request, *args, **kwargs):
+        form = CheckoutForm(request.POST or None)
+        try:
+            order = Order.objects.get(user=request.user, ordered=False)
+            if form.is_valid():
+                user = form.cleaned_data.get['user']
+                street_address = form.cleaned_data.get['street_address']
+                apartment_address = form.cleaned_data.get['apartment_address']
+                city = form.cleaned_data.get['city']
+                country = form.cleaned_data.get['countries']
+                post_code = form.cleaned_data.get['post_code']
+                # TODO: add functionality for these fields
+                # same_billing_address = form.cleaned_data.get['same_billing_address']
+                # save_info = form.cleaned_data.get['save_info']
+                payment_option = form.cleaned_data.get['payment_option']
+
+                billing_address = BillingAddress(
+                    user=request.user,
+                    street_address=street_address,
+                    apartment_address=apartment_address,
+                    city=city,
+                    post_code=post_code
+                )
+                billing_address.save()
+                order.billing_adress = billing_address
+                order.save()
+                # TODO: add redirect to the selected payment option
+                return redirect('core:checkout')
+            messages.warning(self.request, "Failed checkout")
+            return redirect('core:checkout')
+        except ObjectDoesNotExist:
+            messages.error(request, "You do not have an active order")
+            return redirect("/")
 
 
 @login_required
