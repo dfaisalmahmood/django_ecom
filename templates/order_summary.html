@@ -59,11 +59,11 @@
               {% comment %} <input type="number" value="{{order_item.quantity}}" aria-label="Search"
                 class="form-control" style="width: 100px"> {% endcomment %}
               <div class="d-flex justify-content-center align-items-center">
-                <a style="border-radius:50%" class="mr-2 btn-sm btn-default"
+                <a style="border-radius:50%" class="mr-2 btn-sm"
                   href="{% url 'core:reduce-item-quantity-in-cart' order_item.item.slug%}"><i
                     class="fas fa-minus"></i></a>
                 {{order_item.quantity}}
-                <a style="border-radius:50%" class="ml-2 btn-default btn-sm"
+                <a style="border-radius:50%" class="ml-2 btn-sm"
                   href="{% url 'core:add-item-quantity-in-cart' order_item.item.slug%}"><i class="fas fa-plus"></i></a>
               </div>
             </td>
