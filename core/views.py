@@ -50,7 +50,7 @@ class CheckoutView(LoginRequiredMixin, View):
         try:
             order = Order.objects.get(user=request.user, ordered=False)
             if form.is_valid():
-                user = form.cleaned_data.get['user']
+                user = request.user
                 street_address = form.cleaned_data.get['street_address']
                 apartment_address = form.cleaned_data.get['apartment_address']
                 city = form.cleaned_data.get['city']
