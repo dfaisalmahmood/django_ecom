@@ -43,7 +43,9 @@
           <!-- Row -->
           <tr class="text-center">
             <th scope="row">
-              <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/13.jpg" alt=""
+              <!-- <img src="https://mdbootstrap.com/img/Photos/Horizontal/E-commerce/Products/13.jpg" alt=""
+                class="img-fluid z-depth-0"> -->
+                <img src="{{ order_item.item.image.url }}" alt="Image: {{ order_item.item.title }}" 
                 class="img-fluid z-depth-0">
             </th>
             <td>
@@ -83,11 +85,26 @@
           </tr>
           <!-- /.Row -->
           {% endfor %}
+          {% if order.coupon %}
+          <tr>
+          <td colspan="3"></td>
+          <td colspan="2">
+            <div class="text-success float-right">
+                <h6 class="my-0">Promo code</h6>
+                <small>{{ order.coupon.code }}</small>
+              </div>
+          </td>
+          <td colspan="1">
+              <span class="text-success">-৳ {{ order.coupon.amount }}</span>
+          </td>
+          <td colspan="1"></td>
+          </tr>
+          {% endif %}
           {% if order.get_total %}
           <tr>
-            <td colspan="4"></td>
-            <td colspan="1">
-              <h4 class="float-right mt-1 mb-1"><strong> Total:</strong></h4>
+            <td colspan="3"></td>
+            <td colspan="2">
+              <h4 class="mt-1 mb-1 float-right"><strong> Total:</strong></h4>
             </td>
             <td colspan="2" nowrap>
               <h4 class="mt-1 mb-1"><strong>৳ {{order.get_total|floatformat}}</strong></h4>
