@@ -351,7 +351,7 @@ def add_coupon(request, slug):
                 order.coupon = coupon
                 order.save()
                 messages.success(request, "Successfully added coupon")
-                return redirect(helpers.replace_dash_with_slash(prev_path))
+                return redirect(f'core:{helpers.replace_dash_with_slash(prev_path)}')
             except ObjectDoesNotExist:
                 messages.warning(request, "You do not have an active order.")
                 return redirect("/")
