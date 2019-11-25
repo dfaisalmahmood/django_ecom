@@ -9,8 +9,8 @@ import stripe
 import random
 import string
 
-from .models import Item, OrderItem, Order, Address, Payment, Coupon, Refund
-from .forms import CheckoutForm, CouponForm, RefundForm
+from .models import Item, OrderItem, Order, Address, Payment, Coupon, Refund, UserProfile
+from .forms import CheckoutForm, CouponForm, RefundForm, PaymentForm
 from django.core.exceptions import ObjectDoesNotExist
 from . import helpers
 
@@ -225,20 +225,34 @@ class PaymentView(LoginRequiredMixin, View):
         if self.kwargs['payment_option'] == 'stripe':
             try:
                 order = Order.objects.get(user=request.user, ordered=False)
-                if order.billing_address:
-                    context = {
-                        'order': order,
-                        'coupon_form': CouponForm(),
-                        "DISPLAY_COUPON_FORM": False,
-                    }
-                    return render(request, 'payment.html', context)
-                else:
-                    messages.warning(
-                        request, "You have not added a billing address")
-                    return redirect("core:checkout")
             except ObjectDoesNotExist:
-                message.error(request, "You do not have an active order")
+                messages.error(request, "You do not have an active order")
                 return redirect('/')
+            if order.billing_address:
+                context = {
+                    'order': order,
+                    'coupon_form': CouponForm(),
+                    "DISPLAY_COUPON_FORM": False,
+                }
+                userprofile = UserProfile(user=request.user)
+                if userprofile.one_click_purchasing:
+                    # fetch the users card list
+                    cards = stripe.Customer.list_sources(
+                        userprofile.stripe_customer_id,
+                        limit=3,
+                        object='card'
+                    )
+                    card_list = cards['data']
+                    if len(card_list) > 0:
+                        # update the context with the default card
+                        context.update({
+                            'card': card_list[0]
+                        })
+                return render(request, 'payment.html', context)
+            else:
+                messages.warning(
+                    request, "You have not added a billing address")
+                return redirect("core:checkout")
         else:
             messages.warning(request, "Invalid payment method")
             return redirect('core:checkout')
@@ -246,20 +260,49 @@ class PaymentView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         if self.kwargs['payment_option'] == 'stripe':
             order = Order.objects.get(user=request.user, ordered=False)
-            token = self.request.POST.get('stripeToken')
+            form = PaymentForm(request.POST)
+            userprofile = UserProfile.objects.get(user=request.user)
+            if form.is_valid():
+                token = form.cleaned_data.get('stripeToken')
+                save = form.cleaned_data.get('save')
+                use_default = form.cleaned_data.get('use_default')
+
+            if save:
+                # allow to fetch cards
+                if not userprofile.stripe_customer_id:
+                    customer = stripe.Customer.create(
+                        email=request.user.email,
+                        source=token
+                    )
+                    userprofile.stripe_customer_id = customer['id']
+                    userprofile.one_click_purchasing = True
+                    userprofile.save()
+                else:
+                    stripe.Customer.create_source(
+                        userprofile.stripe_customer_id,
+                        source=token
+                    )
+
             amount = order.get_total()
             description = f"Charge for {request.user.username} on order ID {order.id}"
             try:
-                print(
-                    f"amount: {amount}, source: {token}, description: {description}")
+                # print(
+                #    f"amount: {amount}, source: {token}, description: {description}")
                 # `source` is obtained with Stripe.js; see https://stripe.com/docs/payments/accept-a-payment-charges#web-create-token
-                charge = stripe.Charge.create(
-                    amount=amount,
-                    currency="bdt",
-                    source=token,
-                    description=description,
-                )
-                order.ordered = True
+                if use_default:
+                    charge = stripe.Charge.create(
+                        amount=amount,
+                        currency='bdt',
+                        customer=userprofile.stripe_customer_id,
+                        description=description
+                    )
+                else:
+                    charge = stripe.Charge.create(
+                        amount=amount,
+                        currency="bdt",
+                        source=token,
+                        description=description
+                    )
 
                 # create payment
                 payment = Payment()
@@ -275,6 +318,8 @@ class PaymentView(LoginRequiredMixin, View):
                 order_items.update(ordered=True)
                 for order_item in order_items:
                     order_item.save()
+
+                order.ordered = True
                 order.save()
 
                 messages.success(request, "Your order was successful")
@@ -484,7 +529,7 @@ def add_coupon(request, slug):
                 return redirect("/")
             except ValueError:
                 messages.warning(request, "This coupon does not exist.")
-                return redirect(helpers.replace_dash_with_slash(prev_path))
+                return redirect(f'core:{helpers.replace_dash_with_slash(prev_path)}')
     else:
         # TODO: raise error
         return None
