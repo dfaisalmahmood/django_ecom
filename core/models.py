@@ -77,6 +77,7 @@ class OrderItem(models.Model):
 class Order(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE)
+    ref_code = models.CharField(max_length=20)
     items = models.ManyToManyField(OrderItem, )
     start_date = models.DateTimeField(auto_now_add=True)
     ordered_date = models.DateTimeField()
@@ -87,6 +88,22 @@ class Order(models.Model):
         'Payment', on_delete=models.SET_NULL, blank=True, null=True)
     coupon = models.ForeignKey(
         'Coupon', on_delete=models.SET_NULL, blank=True, null=True)
+    being_delivered = models.BooleanField(default=False)
+    received = models.BooleanField(default=False)
+    refund_requested = models.BooleanField(default=False)
+    refund_granted = models.BooleanField(default=False)
+
+    '''
+    --- Stages of an Order ---
+    1. Item added to cart
+    2. Adding billing address
+    (Failed checkout)
+    3. Payment
+    (Preprocessing, processing, packaging, etc.)
+    4. Being delivered
+    5. Received
+    6. Refunds
+    '''
 
     def __str__(self):
         return self.user.username
@@ -136,3 +153,13 @@ class Coupon(models.Model):
 
     def __str__(self):
         return self.code
+
+
+class Refund(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    reason = models.TextField()
+    email = models.EmailField()
+    accepted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.pk}'

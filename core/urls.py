@@ -8,6 +8,7 @@ from .views import (
     OrderSummary,
     CheckoutView,
     PaymentView,
+    RequestRefundView,
     add_item_quantity_in_cart,
     reduce_item_quantity_in_cart,
     remove_item_in_cart,
@@ -33,4 +34,5 @@ urlpatterns = [
          remove_item_in_cart, name='remove-item-in-cart'),
     path('add-coupon/<slug>', add_coupon,
          name='add-coupon'),
+    path('request-refund/', RequestRefundView.as_view(), name='request-refund'),
 ]
