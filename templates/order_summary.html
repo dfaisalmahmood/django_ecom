@@ -56,7 +56,7 @@
             </td>
             {% comment %} <td></td> {% endcomment %}
             <td></td>
-            <td nowrap>৳ {{order_item.item.price|floatformat}}</td>
+            <td nowrap>৳ {{order_item.get_price|floatformat}}</td>
             <td nowrap>
               {% comment %} <input type="number" value="{{order_item.quantity}}" aria-label="Search"
                 class="form-control" style="width: 100px"> {% endcomment %}
