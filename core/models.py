@@ -1,3 +1,5 @@
+import os
+from django.dispatch import receiver
 from django.conf import settings
 from django.db import models
 from django.shortcuts import reverse
@@ -30,6 +32,9 @@ class Item(models.Model):
     slug = models.SlugField()
     description = models.TextField()
     image = models.ImageField()
+    image_secondary_1 = models.ImageField(blank=True, null=True)
+    image_secondary_2 = models.ImageField(blank=True, null=True)
+    image_secondary_3 = models.ImageField(blank=True, null=True)
 
     def __str__(self):
         return self.title
@@ -50,6 +55,73 @@ class Item(models.Model):
         return reverse("core:remove-from-cart", kwargs={
             'slug': self.slug,
         })
+
+    def get_secondary_images(self):
+        secondary_images = []
+        if self.image_secondary_1:
+            secondary_images.append(self.image_secondary_1)
+        if self.image_secondary_2:
+            secondary_images.append(self.image_secondary_2)
+        if self.image_secondary_3:
+            secondary_images.append(self.image_secondary_3)
+        return secondary_images
+
+# These two auto-delete files from filesystem when they are unneeded
+
+
+@receiver(models.signals.post_delete, sender=Item)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding 'MediaFile' oject is deleted.
+    """
+    if os.path.isfile(instance.image.path):
+        os.remove(instance.image.path)
+    if instance.image_secondary_1:
+        if os.path.isfile(instance.image_secondary_1.path):
+            os.remove(instance.image_secondary_1.path)
+    if instance.image_secondary_2:
+        if os.path.isfile(instance.image_secondary_2.path):
+            os.remove(instance.image_secondary_2.path)
+    if instance.image_secondary_3:
+        if os.path.isfile(instance.image_secondary_3.path):
+            os.remove(instance.image_secondary_3.path)
+
+
+@receiver(models.signals.pre_save, sender=Item)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding 'MediaFile' object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    old_image = Item.objects.get(pk=instance.pk).image
+    old_image_secondary_1 = Item.objects.get(
+        pk=instance.pk).image_secondary_1
+    old_image_secondary_2 = Item.objects.get(
+        pk=instance.pk).image_secondary_2
+    old_image_secondary_3 = Item.objects.get(
+        pk=instance.pk).image_secondary_3
+
+    new_image = instance.image
+    new_image_secondary_1 = instance.image_secondary_1
+    new_image_secondary_2 = instance.image_secondary_2
+    new_image_secondary_3 = instance.image_secondary_3
+    if not old_image == new_image:
+        if os.path.isfile(old_image.path):
+            os.remove(old_image.path)
+    if old_image_secondary_1 and not old_image_secondary_1 == new_image_secondary_1:
+        if os.path.isfile(old_image_secondary_1.path):
+            os.remove(old_image_secondary_1.path)
+    if old_image_secondary_2 and not old_image_secondary_2 == new_image_secondary_2:
+        if os.path.isfile(old_image_secondary_2.path):
+            os.remove(old_image_secondary_2.path)
+    if old_image_secondary_3 and not old_image_secondary_3 == new_image_secondary_3:
+        if os.path.isfile(old_image_secondary_3.path):
+            os.remove(old_image_secondary_3.path)
 
 
 class OrderItem(models.Model):

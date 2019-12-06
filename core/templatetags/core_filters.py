@@ -26,3 +26,8 @@ def get_nth_item(value, arg):
 @register.filter
 def replace_slash_with_dash(value):
     return "-".join(value.split('/')[1:-1])
+
+
+@register.filter
+def divide_by_col(value):
+    return int(12/(len(value)))
