@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>Material Design Bootstrap</title>
+  <title>Django Store</title>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css">
   <!-- Bootstrap core CSS -->
@@ -23,7 +23,7 @@
 
   <title> {% block title %} {% endblock title %}</title>
   {% block extra_head %}
-    {% endblock %}
+  {% endblock %}
 </head>
 
 {% include 'navbar.html' %}
@@ -58,8 +58,8 @@
   {% endblock extra_scripts %}
 
   {% if messages %}
-  <script type="text/javascript"> 
-    window.setTimeout(()=>{
+  <script type="text/javascript">
+    window.setTimeout(() => {
       $('.alert').alert('close');
     }, 3000);
   </script>

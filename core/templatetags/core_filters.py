@@ -11,3 +11,18 @@ def page_range(value):
 @register.filter
 def mult(value, arg):
     return (value*arg)
+
+
+@register.filter(is_safe=True)
+def split_by(value, arg):
+    return value.split(arg)
+
+
+@register.filter
+def get_nth_item(value, arg):
+    return value[arg]
+
+
+@register.filter
+def replace_slash_with_dash(value):
+    return "-".join(value.split('/')[1:-1])

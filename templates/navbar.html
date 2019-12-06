@@ -6,7 +6,7 @@
 
         <!-- Brand -->
         <a class="navbar-brand waves-effect" href="/">
-            <strong class="blue-text">A2B Store</strong>
+            <strong class="black-text">Django Store</strong>
         </a>
 
         <!-- Collapse -->
@@ -36,7 +36,8 @@
                 <li class="nav-item">
                     <a href="{% url 'core:order-summary'%}" class="nav-link waves-effect">
                         {% if request.user|cart_item_count > 0 %}
-                        <span id="cart-badge" class="badge red z-depth-1 mr-1"> {{ request.user|cart_item_count }} </span>
+                        <span id="cart-badge" class="badge red z-depth-1 mr-1"> {{ request.user|cart_item_count }}
+                        </span>
                         {% endif %}
                         <i class="fas fa-shopping-cart"></i>
                         <span class="clearfix d-none d-sm-inline-block"> Cart </span>
@@ -59,7 +60,7 @@
                     </a>
                 </li>
                 {% endif %}
-                
+
                 {% comment %} <li class="nav-item">
                     <a href="https://www.facebook.com/mdbootstrap" class="nav-link waves-effect" target="_blank">
                         <i class="fab fa-facebook-f"></i>
